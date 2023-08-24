@@ -1,21 +1,19 @@
 from functools import partial
 from .namespace_resolver import NamespaceResolver
 
-def namespaced(namespace: str):
-    resolver = NamespaceResolver(namespace)
+def namespaced(namespace: str, use_cache: bool = True):
+    return partial(namespaced_inst, namespace, use_cache)
 
-    return partial(namespaced_inst, namespace)
-
-def namespaced_getattr(namespace: str):
-    resolver = NamespaceResolver(namespace)
+def namespaced_getattr(namespace: str, use_cache: bool = True):
+    resolver = NamespaceResolver(namespace, use_cache)
     
     def __getattr__(self, attr):
         return resolver.resolve(self, attr)
 
     return __getattr__
 
-def namespaced_inst(namespace: str, attached_class):
-    resolver = NamespaceResolver(namespace)
+def namespaced_inst(namespace: str, use_cache: bool = True, attached_class = None):
+    resolver = NamespaceResolver(namespace, use_cache)
 
     attached_getattr = None
     if callable(getattr(attached_class, "__getattr__", None)):

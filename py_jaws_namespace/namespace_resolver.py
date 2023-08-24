@@ -4,8 +4,11 @@ from py_jaws_namespace.namespace_registry import NamespaceRegistry
 
 class NamespaceResolver:
 
-    def __init__(self, namespace: str):
+    __cache = {}
+
+    def __init__(self, namespace: str, use_cache: bool):
         self.__namespace = namespace
+        self.__use_cache = use_cache
         self.__ctx = NamespaceRegistry.get_namespace_ctx(self.__namespace)
 
     def resolve(self, initiator, client: str):
@@ -13,9 +16,16 @@ class NamespaceResolver:
             logging.error(f"Invalid client {client} or namespace {self.__namespace}")
             return None
         
+        if self.__use_cache and client in self.__cache:
+            return self.__cache[client]
+
         handler_obj = self.__resolve_import(self.__ctx[client])
         if handler_obj is not None:
-            return handler_obj(initiator)
+            inst = handler_obj(initiator)
+            if self.__use_cache:
+                self.__cache[client] = inst
+
+            return inst
 
         return None
 
