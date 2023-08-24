@@ -4,12 +4,11 @@ from py_jaws_namespace.namespace_registry import NamespaceRegistry
 
 class NamespaceResolver:
 
-    __cache = {}
-
     def __init__(self, namespace: str, use_cache: bool):
         self.__namespace = namespace
         self.__use_cache = use_cache
         self.__ctx = NamespaceRegistry.get_namespace_ctx(self.__namespace)
+        self.__cache = {}
 
     def resolve(self, initiator, client: str):
         if self.__ctx is None or client not in self.__ctx:
